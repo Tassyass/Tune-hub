@@ -2,26 +2,19 @@ import './App.css';
 import Playlist from './components/playlist/Playlist';
 import SearchBar from './components/searchbar/SearchBar';
 import Tracklist from './components/tracklist/Tracklist';
-import { useState, useEffect} from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import './App.css';
-// import Player from './components/Player';
-// import TopSongsComponent from './components/TopSongsComponent';
-import NavBar from './components/NavBar';
-import Footer from './components/Footer';
-import { Route, Routes, useLocation} from "react-router-dom";
-import Play from './pages/Play';
-import Charts from './pages/Charts';
-import Logo from './components/Logo';
-// import Home from './pages/Home';
+import Player from './components/Player';
+import TopSongsComponent from './components/TopSongsComponent';
 
 function App() {
   // define states
   const [tracklist, setTracklist] = useState([]);
   const [playlist, setPlaylist] = useState([]);
   const [playlistName, setPlaylistName] = useState('');
+  // const [user, setUser] = useState(null);
 
   const [tokenInfo, setTokenInfo] = useState(null);
-  const location = useLocation()
 
   useEffect(() => {
     const client_id = '895cc6bc8d9441319664f71c4e6e618c';
@@ -61,11 +54,13 @@ function App() {
   }, []);
 
   const token = tokenInfo?.access_token;
+  //" BQBS9EqezkUG9ugndAJOmy0Tq6Jw6_x1vnBOsR7GnfWG7k7G8urm0_Ad9wmuyf1Ndy9stkPWVTuC1MsEs_umO1r0-oRiWfDiwW1nl_aaCtgP7sy4ccM"
   
   // function to update tracklist, will be called by SearchBar.js after getting results
   const updateTracklist = (array) => {
     setTracklist(array);
   }
+  // console.log(tracklist)
 
   // function to add tracks to playlist, will be called from Track.js
   const addToPlaylist = (newTrack) => {
@@ -106,7 +101,10 @@ function App() {
     }
   }
 
+  // Define the currentUser function using useCallback
+    const fetchCurrentUser  = useCallback(async () => {
 
+    }, []);   
  
   // Function to create a playlist (assuming you have the user's ID)
   const createPlaylist = async (userId, playlistName, token) => {
@@ -185,30 +183,19 @@ function App() {
       throw error;
     }
   }
-// console.log(token)
+
   return (
 
-    <div className="App bg-gray-100 md:container md:mx-auto" style={{ minHeight: '100vh' }}>
+    <div className="App" style={{minHeight: '100vh'}}>
       <div className="title">
-        <Logo />
-        <NavBar />
-        <Routes>
-          <Route exact path="/" element="" />
-          <Route path="/player" element={<Play />} />
-          <Route path="/chart" element={<Charts />} />
-        </Routes>
-        {location.pathname !== '/player' && location.pathname !== '/chart' && (
-          <div>
-            <p className="text-black mt-5 font-extrabold text-3xl">Search Audio,Preview and Save to Playlist  </p>
-            <SearchBar token={token} updateTracklist={updateTracklist} />
-          </div>
-        )}
+        <h1>Tune<span>Hub</span></h1>
+        <SearchBar token={token} updateTracklist={updateTracklist} />
       </div>
-      {token && location.pathname !== '/player' && location.pathname !== '/chart' && (
-        <div className="flex">
+      {token ? (
+        <div className='flex'>
           <Tracklist data={tracklist} addToPlaylist={addToPlaylist} saveTrack={saveTrack} />
           <Playlist
-            className="flexItem"
+            className='flexItem'
             playlist={playlist}
             data={tracklist}
             removeFromPlaylist={removeFromPlaylist}
@@ -216,11 +203,14 @@ function App() {
             playlistName={playlistName}
             currentUser={currentUser}
             createPlaylist={createPlaylist}
-            token={token}
-          />
+            token={token} />   
         </div>
-      )}
-      <Footer/>
+      )
+        :
+        ''
+      }
+      <Player/>
+     <TopSongsComponent/>
     </div>
   );
 }
